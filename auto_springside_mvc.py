@@ -63,7 +63,7 @@ class Project(object):
     tableNameDict={} #表明：[[列名,类型]，[列名,类型]]
     
     #数据库映射表字段
-    columnDict={'bigint':'Long','char':'String','varchar':'String','timestamp':'Date','int':'int','text':'String','longtext':'String'}
+    columnDict={'bigint':'Long','char':'String','varchar':'String','timestamp':'Date','int':'Long','text':'String','longtext':'String'}
     
     #完整建表语句
     #createSql=''
@@ -201,7 +201,6 @@ class Project(object):
         public ${tableNameU}(){
 		
 	}
-	
         
         ${other}
         
@@ -231,7 +230,7 @@ class Project(object):
         ''')
         
         other=Template('''
-        protected ${type} ${name};
+        private ${type} ${name};
         
         ${JsonFormat}
         @Column(name="${name_}")
@@ -287,7 +286,7 @@ class Project(object):
             #循环列
             for c in self.tableNameDict[t[0]]:
                 inits=Template('''
-                if(key=="${name}"){
+                if(key.equals("${name}")){
                     ${name}=(${type})map.get("${name}");
                     continue;
 		}
@@ -483,8 +482,8 @@ class Project(object):
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaTypes.JSON)
 	// 按Restful风格约定，返回204状态码, 无内容. 也可以返回200状态码.
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void update(@RequestBody String body) {
-                ${tableNameU} ${tableName}=new ${tableNameU}();
+	public void update(@PathVariable(value="id")${type} id,@RequestBody String body) {
+                ${tableNameU} ${tableName}=${tableName}Service.getEntity(id);
                 ${tableName}.init(body);
 		// 保存
 		${tableName}Service.saveEntity(${tableName});
